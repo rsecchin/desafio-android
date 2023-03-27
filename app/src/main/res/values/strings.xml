@@ -3,4 +3,13 @@
     <string name="title">Contatos</string>
     <string name="error">Ocorreu um erro. Tente novamente.</string>
 
+
+    <string name="app_menu_users">Users</string>
+    <string name="app_menu_about">About</string>
+
+    <!-- Titles -->
+    <string name="users_screen_title">Users</string>
+    <string name="about_screen_title">About</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

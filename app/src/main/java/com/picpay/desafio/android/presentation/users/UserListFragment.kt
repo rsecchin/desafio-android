@@ -55,7 +55,7 @@ class UserListFragment : Fragment() {
                 }
                 is UserListViewModel.UiState.Error -> {
                     Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show()
-                    FLIPPER_CHILD_LOADING
+                    FLIPPER_CHILD_ERROR
                 }
             }
 

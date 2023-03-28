@@ -37,8 +37,8 @@ class UserListViewModel @Inject constructor(
     }
 
     sealed class UiState {
-        object Loading : UiState()
-        data class Success(val userList: List<UserItem>) : UiState()
+        object Loading: UiState()
+        data class Success(val userList: List<UserItem>): UiState()
         object Error: UiState()
     }
 }

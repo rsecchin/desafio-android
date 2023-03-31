@@ -16,7 +16,7 @@ class UsersRepositoryImpl @Inject constructor(
         emit(ResultStatus.Loading)
         emit(
             ResultStatus.Success(
-            remoteDataSource.getUsers().map { User(it.img, it.name, it.id, it.username) })
+                remoteDataSource.getUsers().map { User(it.img, it.name, it.id, it.username) })
         )
     }.catch { throwable ->
         emit(ResultStatus.Error(throwable))

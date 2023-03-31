@@ -26,10 +26,17 @@ class UserListViewModel @Inject constructor(
 
     private fun Flow<ResultStatus<List<User>>>.watchStatus() = viewModelScope.launch {
         collect { status ->
-            _uiState.value = when(status) {
+            _uiState.value = when (status) {
                 ResultStatus.Loading -> UiState.Loading
                 is ResultStatus.Success -> {
-                    UiState.Success(status.data.map { UserItem(it.img, it.name, it.id, it.username) })
+                    UiState.Success(status.data.map {
+                        UserItem(
+                            it.img,
+                            it.name,
+                            it.id,
+                            it.username
+                        )
+                    })
                 }
                 is ResultStatus.Error -> UiState.Error
             }
@@ -37,8 +44,8 @@ class UserListViewModel @Inject constructor(
     }
 
     sealed class UiState {
-        object Loading: UiState()
-        data class Success(val userList: List<UserItem>): UiState()
-        object Error: UiState()
+        object Loading : UiState()
+        data class Success(val userList: List<UserItem>) : UiState()
+        object Error : UiState()
     }
 }

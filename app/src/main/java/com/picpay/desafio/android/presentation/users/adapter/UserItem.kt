@@ -8,4 +8,4 @@ data class UserItem(
     val id: Int,
     val username: String,
     override val key: Long = id.toLong(),
-): ListItem
+) : ListItem

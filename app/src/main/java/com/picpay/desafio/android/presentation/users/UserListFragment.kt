@@ -64,7 +64,7 @@ class UserListFragment : Fragment() {
     }
 
     private fun initUsersAdapter() {
-        binding.recyclerView.run {
+        binding.recyclerUsers.run {
             setHasFixedSize(true)
             adapter = userListAdapters
         }

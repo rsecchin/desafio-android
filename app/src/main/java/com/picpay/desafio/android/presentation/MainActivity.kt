@@ -21,7 +21,8 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_container) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_container) as NavHostFragment
 
         navController = navHostFragment.navController
 
@@ -33,9 +34,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.toolbarApp.setupWithNavController(navController, appBarConfiguration)
 
-        navController.addOnDestinationChangedListener {_, destination, _ ->
-            val isTopLevelDestination = appBarConfiguration.topLevelDestinations.contains(destination.id)
-            if (!isTopLevelDestination){
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val isTopLevelDestination =
+                appBarConfiguration.topLevelDestinations.contains(destination.id)
+            if (!isTopLevelDestination) {
                 binding.toolbarApp.setNavigationIcon(R.drawable.ic_menu_home)
             }
         }

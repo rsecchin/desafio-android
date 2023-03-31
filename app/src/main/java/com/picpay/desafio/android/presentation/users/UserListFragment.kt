@@ -1,15 +1,20 @@
 package com.picpay.desafio.android.presentation.users
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.picpay.desafio.android.R
 import com.picpay.desafio.android.databinding.FragmentUserListBinding
+import com.picpay.desafio.android.framework.usecase.ResultStatus
 import com.picpay.desafio.android.presentation.common.getGenericAdapterOf
+import com.picpay.desafio.android.presentation.users.adapter.UserItem
 import com.picpay.desafio.android.presentation.users.adapter.UserListItemViewHolder
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,6 +48,19 @@ class UserListFragment : Fragment() {
 
     private fun initObservers() {
         viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
+
+            val teste2e = when(uiState) {
+                is UserListViewModel.UiState.Loading -> {
+                    "FLIPPER_CHILD_LOADING"
+                }
+                is UserListViewModel.UiState.Success -> {
+                    "${uiState.userList}"
+                }
+                is UserListViewModel.UiState.Error -> {
+                    "FLIPPER_CHILD_ERROR"
+                }
+            }
+            Log.d("testadoooo: ", teste2e)
 
             binding.flipperUsers.displayedChild = when (uiState) {
 

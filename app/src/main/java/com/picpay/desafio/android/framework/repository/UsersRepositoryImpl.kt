@@ -18,11 +18,11 @@ class UsersRepositoryImpl @Inject constructor(
     private val userDb: AppDatabase
 ) : UsersRepository {
 
-    private val restaurantDao = userDb.userDao()
+    private val userDao = userDb.userDao()
 
     override suspend fun getUsers(): Flow<ResultStatus<List<User>>> = networkBoundResource(
         query = {
-            restaurantDao.getAllUsers().map {
+            userDao.getAllUsers().map {
                 it.toUsersModel()
             }
         },
@@ -32,8 +32,8 @@ class UsersRepositoryImpl @Inject constructor(
         },
         saveFetchResult = { users ->
             userDb.withTransaction {
-                restaurantDao.deleteAllUsers()
-                restaurantDao.insertUsers(users.map {
+                userDao.deleteAllUsers()
+                userDao.insertUsers(users.map {
                     UserEntity(img = it.img, name = it.name, id = it.id, username = it.username)
                 })
             }

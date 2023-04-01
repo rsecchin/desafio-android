@@ -48,7 +48,7 @@ internal class UserListViewModelTest {
     }
 
     @Test
-    fun `should notify uiState with Success from UiState when get weather returns success`() =
+    fun `should notify uiState with Success from UiState when get users returns success`() =
         runTest {
             // Arrange
             whenever(usersRepository.getUsers())
@@ -68,16 +68,16 @@ internal class UserListViewModelTest {
 
             val uiStateSuccess =
                 userListViewModel.uiState.value as UserListViewModel.UiState.Success
-            val weatherTest = uiStateSuccess.userList
+            val userTest = uiStateSuccess.userList
 
             Assert.assertEquals(
                 1,
-                weatherTest.size
+                userTest.size
             )
         }
 
     @Test
-    fun `should notify uiState with Error from UiState when get weather returns an exception`() =
+    fun `should notify uiState with Error from UiState when get users returns an exception`() =
         runTest {
             // Arrange
             whenever(usersRepository.getUsers())

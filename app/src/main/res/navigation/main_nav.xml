@@ -5,5 +5,4 @@
     app:startDestination="@id/home">
 
     <include app:graph="@navigation/users" />
-    <include app:graph="@navigation/about" />
 </navigation>

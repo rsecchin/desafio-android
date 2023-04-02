@@ -1,10 +1,17 @@
 package com.picpay.desafio.android.framework.repository
 
-import com.picpay.desafio.android.framework.usecase.ResultStatus
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import com.picpay.desafio.android.presentation.users.User
 import kotlinx.coroutines.flow.Flow
 
 interface UsersRepository {
 
-    suspend fun getUsers(): Flow<ResultStatus<List<User>>>
+    fun getUsers(query: String): PagingSource<Int, User>
+
+    fun getCachedUsers(
+        query: String,
+        pagingConfig: PagingConfig
+    ): Flow<PagingData<User>>
 }

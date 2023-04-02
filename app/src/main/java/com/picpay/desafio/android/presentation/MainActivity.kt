@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavMain.setupWithNavController(navController)
 
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.userListFragment, R.id.aboutFragment)
+            setOf(R.id.userListFragment)
         )
 
         binding.toolbarApp.setupWithNavController(navController, appBarConfiguration)

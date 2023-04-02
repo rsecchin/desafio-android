@@ -5,8 +5,4 @@
         android:id="@+id/home"
         android:icon="@drawable/ic_menu_home"
         android:title="@string/app_menu_users" />
-    <item
-        android:id="@+id/about"
-        android:icon="@drawable/ic_menu_info"
-        android:title="@string/app_menu_about" />
 </menu>

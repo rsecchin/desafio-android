@@ -1,18 +1,18 @@
 package com.picpay.desafio.android.presentation.users
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.picpay.desafio.android.R
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import com.picpay.desafio.android.databinding.FragmentUserListBinding
-import com.picpay.desafio.android.presentation.common.getGenericAdapterOf
-import com.picpay.desafio.android.presentation.users.adapter.UserListItemViewHolder
+import com.picpay.desafio.android.presentation.users.adapter.UsersAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class UserListFragment : Fragment() {
@@ -23,9 +23,7 @@ class UserListFragment : Fragment() {
     private val viewModel: UserListViewModel by viewModels()
 
     private val userListAdapters by lazy {
-        getGenericAdapterOf {
-            UserListItemViewHolder.create(it)
-        }
+        UsersAdapter()
     }
 
     override fun onCreateView(
@@ -39,48 +37,49 @@ class UserListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initUsersAdapter()
-        initObservers()
-    }
+        observeInitialLoadState()
 
-    private fun initObservers() {
-        viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
-
-            val teste2e = when(uiState) {
-                is UserListViewModel.UiState.Loading -> {
-                    "FLIPPER_CHILD_LOADING"
-                }
-                is UserListViewModel.UiState.Success -> {
-                    "${uiState.userList}"
-                }
-                is UserListViewModel.UiState.Error -> {
-                    "FLIPPER_CHILD_ERROR"
+        viewModel.state.observe(viewLifecycleOwner) { uiState ->
+            when (uiState) {
+                is UserListViewModel.UiState.SearchResult -> {
+                    userListAdapters.submitData(viewLifecycleOwner.lifecycle, uiState.data)
                 }
             }
-            Log.d("testadoooo: ", teste2e)
-
-            binding.flipperUsers.displayedChild = when (uiState) {
-
-                is UserListViewModel.UiState.Loading -> {
-                    FLIPPER_CHILD_LOADING
-                }
-                is UserListViewModel.UiState.Success -> {
-                    userListAdapters.submitList(uiState.userList)
-                    FLIPPER_CHILD_USERS
-                }
-                is UserListViewModel.UiState.Error -> {
-                    Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show()
-                    FLIPPER_CHILD_ERROR
-                }
-            }
-
         }
-        viewModel.getUsers()
+
+        viewModel.searchUsers()
     }
 
     private fun initUsersAdapter() {
-        binding.recyclerUsers.run {
+        postponeEnterTransition()
+        with(binding.recyclerUsers) {
             setHasFixedSize(true)
             adapter = userListAdapters
+        }
+    }
+
+    private fun observeInitialLoadState() {
+
+        lifecycleScope.launch {
+            userListAdapters.loadStateFlow.collectLatest { loadState ->
+
+                binding.flipperUsers.displayedChild = when {
+                    loadState.mediator?.refresh is LoadState.Loading -> {
+                        FLIPPER_CHILD_LOADING
+                    }
+                    loadState.mediator?.refresh is LoadState.Error
+                            && userListAdapters.itemCount == 0 -> {
+                        FLIPPER_CHILD_ERROR
+                    }
+                    loadState.source.refresh is LoadState.NotLoading
+                            || loadState.mediator?.refresh is LoadState.NotLoading -> {
+                        FLIPPER_CHILD_USERS
+                    }
+                    else -> {
+                        FLIPPER_CHILD_USERS
+                    }
+                }
+            }
         }
     }
 

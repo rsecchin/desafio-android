@@ -3,7 +3,6 @@ package com.picpay.desafio.android.framework.db.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.picpay.desafio.android.presentation.users.User
 
 @Entity(tableName = "users")
 data class UserEntity (
@@ -14,5 +13,3 @@ data class UserEntity (
     @ColumnInfo(name = "user_id") val id: Int,
     @ColumnInfo(name = "user_username") val username: String
 )
-
-fun List<UserEntity>.toUsersModel() = map { User(it.img, it.name, it.id, it.username) }

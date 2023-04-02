@@ -1,48 +1,55 @@
 package com.picpay.desafio.android.presentation.users
 
 import androidx.lifecycle.*
-import com.picpay.desafio.android.framework.repository.UsersRepository
-import com.picpay.desafio.android.framework.usecase.ResultStatus
-import com.picpay.desafio.android.presentation.users.adapter.UserItem
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.picpay.desafio.android.framework.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @HiltViewModel
 class UserListViewModel @Inject constructor(
-    private val repository: UsersRepository
+    private val useCase: UserUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableLiveData<UiState>()
-    val uiState: LiveData<UiState> get() = _uiState
-
-    fun getUsers() = viewModelScope.launch {
-        repository.getUsers().watchStatus()
-    }
-
-    private fun Flow<ResultStatus<List<User>>>.watchStatus() = viewModelScope.launch {
-        collect { status ->
-            _uiState.value = when (status) {
-                ResultStatus.Loading -> UiState.Loading
-                is ResultStatus.Success -> {
-                    UiState.Success(status.data.map {
-                        UserItem(
-                            it.img,
-                            it.name,
-                            it.id,
-                            it.username
-                        )
-                    })
+    private val action = MutableLiveData<Action>()
+    val state: LiveData<UiState> = action
+        .distinctUntilChanged()
+        .switchMap { action ->
+            when (action) {
+                is Action.Search -> {
+                    useCase(
+                        UserUseCase.GetUsersParams("",getPagingConfig())
+                    ).cachedIn(viewModelScope).map {
+                        UiState.SearchResult(it)
+                    }.asLiveData(Dispatchers.Main)
                 }
-                is ResultStatus.Error -> UiState.Error
             }
         }
+
+    fun usersPagingData(): Flow<PagingData<User>> {
+        return useCase(
+            UserUseCase.GetUsersParams("",getPagingConfig())
+        ).cachedIn(viewModelScope)
+    }
+
+    private fun getPagingConfig() = PagingConfig(
+        pageSize = 20
+    )
+
+    fun searchUsers(query: String = "") {
+        action.value = Action.Search(query)
     }
 
     sealed class UiState {
-        object Loading : UiState()
-        data class Success(val userList: List<UserItem>) : UiState()
-        object Error : UiState()
+        data class SearchResult(val data: PagingData<User>) : UiState()
+    }
+
+    sealed class Action {
+        data class Search(val query: String) : Action()
     }
 }

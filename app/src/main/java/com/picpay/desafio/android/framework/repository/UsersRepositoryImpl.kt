@@ -1,14 +1,11 @@
 package com.picpay.desafio.android.framework.repository
 
-import androidx.room.withTransaction
+import androidx.paging.*
 import com.picpay.desafio.android.framework.db.AppDatabase
-import com.picpay.desafio.android.framework.db.entity.UserEntity
-import com.picpay.desafio.android.framework.db.entity.toUsersModel
+import com.picpay.desafio.android.framework.paging.UsersPagingSource
+import com.picpay.desafio.android.framework.paging.UsersRemoteMediator
 import com.picpay.desafio.android.framework.repository.remote.UserRemoteDataSource
-import com.picpay.desafio.android.framework.usecase.ResultStatus
-import com.picpay.desafio.android.framework.usecase.networkBoundResource
 import com.picpay.desafio.android.presentation.users.User
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -18,25 +15,22 @@ class UsersRepositoryImpl @Inject constructor(
     private val userDb: AppDatabase
 ) : UsersRepository {
 
-    private val userDao = userDb.userDao()
+    override fun getUsers(query: String): PagingSource<Int, User> {
+        return UsersPagingSource(remoteDataSource, query)
+    }
 
-    override suspend fun getUsers(): Flow<ResultStatus<List<User>>> = networkBoundResource(
-        query = {
-            userDao.getAllUsers().map {
-                it.toUsersModel()
-            }
-        },
-        fetch = {
-            delay(2000)
-            remoteDataSource.getUsers()
-        },
-        saveFetchResult = { users ->
-            userDb.withTransaction {
-                userDao.deleteAllUsers()
-                userDao.insertUsers(users.map {
-                    UserEntity(img = it.img, name = it.name, id = it.id, username = it.username)
-                })
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getCachedUsers(
+        query: String,
+        pagingConfig: PagingConfig
+    ): Flow<PagingData<User>> {
+        return Pager(
+            config = pagingConfig,
+            remoteMediator = UsersRemoteMediator(userDb, remoteDataSource)
+        ) { userDb.userDao().getAllUsers() }.flow.map { pagingData ->
+            pagingData.map {
+                User(it.img, it.name, it.id, it.username)
             }
         }
-    )
+    }
 }

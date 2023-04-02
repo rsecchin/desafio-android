@@ -1,14 +1,12 @@
 package com.picpay.desafio.android.presentation.users
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
-import com.nhaarman.mockitokotlin2.isA
+import androidx.paging.PagingData
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
-import com.picpay.desafio.android.framework.repository.UsersRepository
-import com.picpay.desafio.android.framework.usecase.ResultStatus
+import com.picpay.desafio.android.framework.usecase.UserUseCase
 import com.picpay.desafio.android.presentation.MainCoroutineRule
-import junit.framework.Assert
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
 import org.junit.Assert.*
@@ -17,81 +15,50 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 internal class UserListViewModelTest {
 
     @get:Rule
-    var instantExecutorRule = InstantTaskExecutorRule()
-
-    @ExperimentalCoroutinesApi
-    @get:Rule
-    var mainCoroutine = MainCoroutineRule()
+    var mainCoroutineRule = MainCoroutineRule()
 
     @Mock
-    lateinit var usersRepository: UsersRepository
-
-    @Mock
-    private lateinit var uiStateObserver: Observer<UserListViewModel.UiState>
-
-    private val users = listOf(User("", "", 1, ""))
+    lateinit var userUseCase: UserUseCase
 
     private lateinit var userListViewModel: UserListViewModel
 
-    @ExperimentalCoroutinesApi
+    private val pagingDataUsers = PagingData.from(
+        listOf(User("", "", 1, ""))
+    )
+
     @Before
     fun setUp() {
-        userListViewModel = UserListViewModel(usersRepository)
-        userListViewModel.uiState.observeForever(uiStateObserver)
+        userListViewModel =
+            UserListViewModel(userUseCase)
     }
 
     @Test
-    fun `should notify uiState with Success from UiState when get users returns success`() =
+    fun `should validate the paging data object values when calling usersPagingData`() =
         runTest {
-            // Arrange
-            whenever(usersRepository.getUsers())
-                .thenReturn(
-                    flowOf(
-                        ResultStatus.Success(
-                            users
-                        )
-                    )
-                )
 
-            // Act
-            userListViewModel.getUsers()
-
-            // Assert
-            Mockito.verify(uiStateObserver).onChanged(isA<UserListViewModel.UiState.Success>())
-
-            val uiStateSuccess =
-                userListViewModel.uiState.value as UserListViewModel.UiState.Success
-            val userTest = uiStateSuccess.userList
-
-            Assert.assertEquals(
-                1,
-                userTest.size
+            whenever(userUseCase.invoke(any())).thenReturn(
+                flowOf(pagingDataUsers)
             )
+
+            val result = userListViewModel.usersPagingData()
+
+            assertNotNull(result.first())
         }
 
-    @Test
-    fun `should notify uiState with Error from UiState when get users returns an exception`() =
+    @Test(expected = RuntimeException::class)
+    fun `should throw an exception when the calling to the use case returns an exception`() {
         runTest {
-            // Arrange
-            whenever(usersRepository.getUsers())
-                .thenReturn(
-                    flowOf(
-                        ResultStatus.Error(Throwable())
-                    )
-                )
+            whenever(userUseCase.invoke(any())).thenThrow(RuntimeException())
 
-            // Act
-            userListViewModel.getUsers()
-
-            // Assert
-            Mockito.verify(uiStateObserver).onChanged(isA<UserListViewModel.UiState.Error>())
+            userListViewModel.usersPagingData()
         }
+    }
 
 }

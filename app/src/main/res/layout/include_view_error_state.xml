@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:id="@+id/include_view_error_state"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/colorPrimary">
 
     <TextView
         android:id="@+id/text_initial_loading_error"

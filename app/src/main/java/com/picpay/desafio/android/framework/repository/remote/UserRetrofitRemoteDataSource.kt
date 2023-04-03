@@ -4,7 +4,7 @@ import com.picpay.desafio.android.framework.model.UserResponse
 import com.picpay.desafio.android.framework.network.PicPayService
 import javax.inject.Inject
 
-class UserRetrofitRemoteDataSource @Inject constructor (
+class UserRetrofitRemoteDataSource @Inject constructor(
     private val picPayService: PicPayService
 ) : UserRemoteDataSource {
 

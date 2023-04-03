@@ -6,19 +6,20 @@ import android.view.ViewGroup
 import com.picpay.desafio.android.R
 import com.picpay.desafio.android.databinding.ListItemUserBinding
 import com.picpay.desafio.android.presentation.common.GenericViewHolder
+import com.picpay.desafio.android.presentation.users.User
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 
 class UserListItemViewHolder(
     itemBinding: ListItemUserBinding
-) : GenericViewHolder<UserItem>(itemBinding) {
+) : GenericViewHolder<User>(itemBinding) {
 
     private val name = itemBinding.name
     private val username = itemBinding.username
     private val progressBar = itemBinding.progressBar
     private val picture = itemBinding.picture
 
-    override fun bind(data: UserItem) {
+    override fun bind(data: User) {
         name.text = data.name
         username.text = data.username
         progressBar.visibility = View.VISIBLE

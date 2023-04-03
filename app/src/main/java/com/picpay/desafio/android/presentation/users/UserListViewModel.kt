@@ -21,9 +21,9 @@ class UserListViewModel @Inject constructor(
         .distinctUntilChanged()
         .switchMap { action ->
             when (action) {
-                is Action.Search -> {
+                is Action.GetAll -> {
                     useCase(
-                        UserUseCase.GetUsersParams("",getPagingConfig())
+                        UserUseCase.GetUsersParams(getPagingConfig())
                     ).cachedIn(viewModelScope).map {
                         UiState.SearchResult(it)
                     }.asLiveData(Dispatchers.Main)
@@ -33,7 +33,7 @@ class UserListViewModel @Inject constructor(
 
     fun usersPagingData(): Flow<PagingData<User>> {
         return useCase(
-            UserUseCase.GetUsersParams("",getPagingConfig())
+            UserUseCase.GetUsersParams(getPagingConfig())
         ).cachedIn(viewModelScope)
     }
 
@@ -41,8 +41,8 @@ class UserListViewModel @Inject constructor(
         pageSize = 20
     )
 
-    fun searchUsers(query: String = "") {
-        action.value = Action.Search(query)
+    fun getUsers() {
+        action.value = Action.GetAll
     }
 
     sealed class UiState {
@@ -50,6 +50,6 @@ class UserListViewModel @Inject constructor(
     }
 
     sealed class Action {
-        data class Search(val query: String) : Action()
+        object GetAll : Action()
     }
 }

@@ -47,7 +47,7 @@ class UserListFragment : Fragment() {
             }
         }
 
-        viewModel.searchUsers()
+        viewModel.getUsers()
     }
 
     private fun initUsersAdapter() {

@@ -9,5 +9,5 @@ interface UserUseCase {
 
     operator fun invoke(params: GetUsersParams): Flow<PagingData<User>>
 
-    data class GetUsersParams(val query: String, val pagingConfig: PagingConfig)
+    data class GetUsersParams(val pagingConfig: PagingConfig)
 }

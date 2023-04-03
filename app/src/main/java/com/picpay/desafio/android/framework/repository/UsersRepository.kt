@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 interface UsersRepository {
 
     fun getCachedUsers(
-        query: String,
         pagingConfig: PagingConfig
     ): Flow<PagingData<User>>
 }

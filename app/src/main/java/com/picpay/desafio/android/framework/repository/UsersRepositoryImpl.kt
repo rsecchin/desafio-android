@@ -16,7 +16,6 @@ class UsersRepositoryImpl @Inject constructor(
 
     @OptIn(ExperimentalPagingApi::class)
     override fun getCachedUsers(
-        query: String,
         pagingConfig: PagingConfig
     ): Flow<PagingData<User>> {
         return Pager(

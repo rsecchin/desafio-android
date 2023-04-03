@@ -11,6 +11,6 @@ class UserUseCaseImpl @Inject constructor(
 ) : PagingUseCase<UserUseCase.GetUsersParams, User>(), UserUseCase {
 
     override fun createFlowObservable(params: UserUseCase.GetUsersParams): Flow<PagingData<User>> {
-        return charactersRepository.getCachedUsers(params.query, params.pagingConfig)
+        return charactersRepository.getCachedUsers(params.pagingConfig)
     }
 }

@@ -19,7 +19,7 @@ class UsersRemoteMediator @Inject constructor(
     private val remoteDataSource: UserRemoteDataSource
 ) : RemoteMediator<Int, UserEntity>() {
 
-    private val characterDao = database.userDao()
+    private val userDao = database.userDao()
     private val remoteKeyDao = database.remoteKeyDao()
 
     @Suppress("ReturnCount")
@@ -29,29 +29,29 @@ class UsersRemoteMediator @Inject constructor(
     ): MediatorResult {
         return try {
 
-            val characterPaging = remoteDataSource.getUsers()
+            val userPaging = remoteDataSource.getUsers()
             val responseOffset = 20
-            val totalCharacters = characterPaging.size
+            val totalUsers = userPaging.size
 
 
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     remoteKeyDao.clearAll()
-                    characterDao.deleteAllUsers()
+                    userDao.deleteAllUsers()
                 }
 
                 remoteKeyDao.insertOrReplace(
                     RemoteKey(nextOffset = responseOffset + state.config.pageSize)
                 )
 
-                val charactersEntities = characterPaging.map {
+                val userEntities = userPaging.map {
                     UserEntity(id = it.id, name = it.name, img = it.img, username = it.username)
                 }
 
-                characterDao.insertUsers(charactersEntities)
+                userDao.insertUsers(userEntities)
             }
 
-            MediatorResult.Success(endOfPaginationReached = responseOffset >= totalCharacters)
+            MediatorResult.Success(endOfPaginationReached = responseOffset >= totalUsers)
 
         } catch (e: IOException) {
             MediatorResult.Error(e)

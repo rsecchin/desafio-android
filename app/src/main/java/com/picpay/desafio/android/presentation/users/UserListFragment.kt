@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import com.picpay.desafio.android.databinding.FragmentUserListBinding
 import com.picpay.desafio.android.presentation.users.adapter.UsersAdapter
@@ -24,7 +22,11 @@ class UserListFragment : Fragment() {
 
     private val viewModel: UserListViewModel by viewModels()
 
-    private lateinit var userListAdapters: UsersAdapter
+//    private lateinit var userListAdapters: UsersAdapter
+
+    private val userListAdapters: UsersAdapter by lazy {
+        UsersAdapter()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,18 +41,17 @@ class UserListFragment : Fragment() {
         initUsersAdapter()
         observeInitialLoadState()
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.usersPagingData().collect { pagingData ->
-                    userListAdapters.submitData(pagingData)
+        viewModel.state.observe(viewLifecycleOwner) { uiState ->
+            when (uiState) {
+                is UserListViewModel.UiState.SearchResult -> {
+                    userListAdapters.submitData(viewLifecycleOwner.lifecycle, uiState.data)
                 }
             }
         }
+        viewModel.getUsers()
     }
 
     private fun initUsersAdapter() {
-        userListAdapters = UsersAdapter()
-
         postponeEnterTransition()
         with(binding.recyclerUsers) {
             setHasFixedSize(true)

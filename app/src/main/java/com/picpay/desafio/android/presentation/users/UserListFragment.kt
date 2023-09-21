@@ -22,8 +22,6 @@ class UserListFragment : Fragment() {
 
     private val viewModel: UserListViewModel by viewModels()
 
-//    private lateinit var userListAdapters: UsersAdapter
-
     private val userListAdapters: UsersAdapter by lazy {
         UsersAdapter()
     }
